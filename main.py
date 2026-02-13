@@ -2,61 +2,78 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from datetime import datetime, timezone
 from enum import Enum
+import uuid
+
+class Status(str, Enum):
+    PENDING = "Pending"
+    PROCESSING = "Processing"
+    COMPLETED = "Completed"
+    FAILED = "Failed"
 
 class Item(BaseModel):
     response_text: str | None = None
+    status: Status = Status.PENDING
+    source: str | None = "CHAT"
+    tenant: str | None = "HIVERWEB"
 
 
 app = FastAPI()
 
 @app.get("/")
 async def hello():
-    return {"Hello World, this is a project"}
+    return {"Hello World, this is a CRUD project for learning purposes."}
 
-# CREATE (POST)
+# 1. CREATE (POST)
 db = []
-@app.post("/add_item/{ug_id}")
-async def create_item(ug_id: int, item: Item, tenant: str | None = None):
+@app.post("/items")
+async def create_item(item: Item):
 
     now = datetime.now(timezone.utc)
 
     result = {
-        "ug_id": ug_id,
+        "ug_id": str(uuid.uuid4()),
         "created_at": now,
         "updated_at": now,
         "response_text": item.response_text,
-        "tenant": tenant
+        "tenant": item.tenant,
+        "status": item.status,
+        "source": item.source,
     }
 
     db.append(result)
     return result
 
-# Read (GET)
-@app.get("/get_items")
+# 2. READ (GET)
+@app.get("/items")
 async def get_item():
     return db
 
-# Update (PUT)
-@app.put("/update_item/{ug_id}")
-async def update_item(ug_id: int, response_text: str | None = None):
-    for emp in db:
-        if emp["ug_id"] == ug_id:
-            if response_text is not None:
-                emp["response_text"] = response_text
-            
-            emp["updated_at"] = datetime.utcnow()
-            return emp
-    
+# 2a. READ by ID (GET)
+@app.get("/items/{ug_id}")
+async def get_by_id(ug_id: str):
+    for item in db:
+        if item["ug_id"] == ug_id:
+            return item
     raise HTTPException(status_code=404, detail="Item not found")
 
+# UPDATE status of the item (PUT)
+@app.put("/items/{ug_id}")
+async def update_item(ug_id: str, status: Status):
+    for item in db:
+        if item["ug_id"] == ug_id:
+            item["status"] = status
+            item["updated_at"] = datetime.now(timezone.utc)
+            return item
+    
+    raise HTTPException(status_code=404, detail="Item not found/Does not exist")
 
-# Delete (DELETE)
-@app.delete("/delete_item/{ug_id}")
-async def remove_item(ug_id: int):
+
+# DELETE (DELETE)
+@app.delete("/items/{ug_id}")
+async def remove_item(ug_id: str):
     for index, emp in enumerate(db):
         if emp["ug_id"] == ug_id:
             removed= db.pop(index)
             return {"message": "Item deleted", "item": removed}
     
     raise HTTPException(status_code=404, detail="Item not found")
-    
