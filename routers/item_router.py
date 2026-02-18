@@ -7,8 +7,7 @@ from repositories.Orm import SessionLocal
 from dtos.item import ItemCreate, ItemUpdate, ItemResponse
 from controllers import item_controller
 
-router = APIRouter(prefix="/items", tags=["Items"])
-
+router = APIRouter(prefix="/items")
 
 def get_db():
     db = SessionLocal()
