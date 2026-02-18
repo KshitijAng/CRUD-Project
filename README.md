@@ -4,6 +4,8 @@ A simple CRUD API built with **FastAPI** to practice backend fundamentals, REST 
 
 This project simulates a lightweight service for managing items with status tracking, timestamps, and UUID-based identification.
 
+![Project Screenshot](CRUD.png)
+
 
 ## 🚀 Features
 
