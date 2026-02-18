@@ -1,5 +1,5 @@
 """
-Controller: same commands as before (create, list, get, update, delete).
+Controller: CRUD commands (create, list, get, update, delete).
 Handles HTTP (e.g. 404) and calls service.
 """
 from fastapi import HTTPException

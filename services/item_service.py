@@ -2,14 +2,14 @@
 Service layer: business logic and DB access.
 """
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from repositories.models.item_model import ItemModel
 from dtos.item import ItemCreate, ItemUpdate
 
 
 def create_item_service(db: Session, item_schema: ItemCreate) -> ItemModel:
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     db_item = ItemModel(
         ug_id=str(uuid.uuid4()),
         response_text=item_schema.response_text,
